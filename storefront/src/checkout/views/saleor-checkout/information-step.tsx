@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback, type FC } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/ui/components/ui/button";
-import { ExpressCheckout } from "@/checkout/components/express-checkout";
 import {
 	type CheckoutFragment,
 	type CountryCode,
@@ -52,7 +51,7 @@ export const InformationStep: FC<InformationStepProps> = ({ checkout, onNext }) 
 
 	// Default country: use checkout's address, or first available country from channel
 	const defaultCountry =
-		(shippingAddress?.country?.code as CountryCode) || availableShippingCountries[0] || ("US" as CountryCode);
+		(shippingAddress?.country?.code as CountryCode) || availableShippingCountries[0] || ("RS" as CountryCode);
 
 	// Mutations
 	const [, updateEmail] = useCheckoutEmailUpdateMutation();
@@ -391,7 +390,6 @@ export const InformationStep: FC<InformationStepProps> = ({ checkout, onNext }) 
 	if (contactView === "resetPassword") {
 		return (
 			<div className="space-y-8">
-				<ExpressCheckout />
 				<ResetPasswordForm
 					onSuccess={() => setContactView("main")}
 					onBackToSignIn={() => {
@@ -411,7 +409,6 @@ export const InformationStep: FC<InformationStepProps> = ({ checkout, onNext }) 
 	if (contactView === "signIn") {
 		return (
 			<div className="space-y-8">
-				<ExpressCheckout />
 				<SignInForm
 					initialEmail={email}
 					channelSlug={checkout.channel.slug}
@@ -424,15 +421,13 @@ export const InformationStep: FC<InformationStepProps> = ({ checkout, onNext }) 
 
 	// ----- Render: Main Form -----
 	const buttonText = isSubmitting
-		? "Saving..."
+		? "Čuvanje..."
 		: checkout.isShippingRequired
-			? "Continue to shipping"
-			: "Continue to payment";
+			? "Nastavi na dostavu"
+			: "Nastavi na plaćanje";
 
 	return (
 		<form className="space-y-8" onSubmit={handleSubmit} noValidate>
-			<ExpressCheckout />
-
 			<ContactSection
 				isSignedIn={authenticated}
 				user={user}

@@ -67,7 +67,7 @@ export const ShippingAddressSection: FC<ShippingAddressSectionProps> = ({
 
 	return (
 		<section className="space-y-4">
-			<h2 className="text-xl font-semibold">Shipping address</h2>
+			<h2 className="text-xl font-semibold">Adresa za dostavu</h2>
 
 			{showAddressList ? (
 				<>
@@ -76,9 +76,9 @@ export const ShippingAddressSection: FC<ShippingAddressSectionProps> = ({
 						selectedAddressId={selectedAddressId}
 						onSelectAddress={onSelectAddress}
 						defaultAddressId={defaultAddressId}
-						emptyMessage="You don't have any saved addresses yet. Please enter your shipping address below."
+						emptyMessage="Nemate sačuvanih adresa. Unesite adresu za dostavu ispod."
 						addressType="SHIPPING"
-						sheetTitle="Select shipping address"
+						sheetTitle="Izaberite adresu za dostavu"
 						onAddNew={() => onShowNewAddressForm(true)}
 					/>
 					{errors.address && <FieldError error={errors.address} />}
@@ -92,20 +92,20 @@ export const ShippingAddressSection: FC<ShippingAddressSectionProps> = ({
 							onClick={() => onShowNewAddressForm(false)}
 							className="text-sm text-muted-foreground underline underline-offset-2 hover:text-foreground hover:no-underline"
 						>
-							← Back to saved addresses
+							← Nazad na sačuvane adrese
 						</button>
 					)}
 
 					{/* Country selector */}
 					<div className="space-y-2">
 						<Label htmlFor="country" className="text-sm font-medium">
-							Country/Region
+							Zemlja/Region
 						</Label>
 						<FormSelect
 							id="country"
 							value={countryCode}
 							onChange={onCountryChange}
-							placeholder="Select country"
+							placeholder="Izaberite zemlju"
 							autoComplete="country"
 							options={availableCountries.map((code) => ({
 								value: code,

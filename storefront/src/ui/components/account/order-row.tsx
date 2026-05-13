@@ -1,8 +1,8 @@
-import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import { type OrderDetailsFragment } from "@/gql/graphql";
 import { LinkWithChannel } from "@/ui/atoms/link-with-channel";
 import { formatDate, formatMoney } from "@/lib/utils";
+import { proxySaleorUrl } from "@/lib/saleor-image";
 import { orderStatusStyle, defaultStatusStyle, customerStatusLabel } from "./order-status-config";
 import { accountRoutes } from "./routes";
 
@@ -32,12 +32,11 @@ export function OrderRow({ order }: Props) {
 						key={i}
 						className="bg-secondary/40 h-12 w-12 shrink-0 overflow-hidden rounded-lg border-2 border-background"
 					>
-						<Image
-							src={thumb.url}
+						<img
+							src={proxySaleorUrl(thumb.url)}
 							alt={thumb.alt ?? ""}
-							width={96}
-							height={96}
 							className="h-full w-full object-contain"
+							loading="lazy"
 						/>
 					</div>
 				))}

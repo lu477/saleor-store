@@ -10,6 +10,10 @@ import { AddToCart } from "./add-to-cart";
 import { VariantSelectionSection } from "./variant-selection";
 import { StickyBar } from "./sticky-bar";
 import { Badge } from "@/ui/components/ui/badge";
+import { MaterialQuantityInput } from "./material-quantity-input";
+
+const MATERIAL_CATEGORY_SLUG = "materijali";
+const METER_MULTIPLIER = 10;
 
 type Product = NonNullable<ProductDetailsQuery["product"]>;
 
@@ -45,37 +49,54 @@ export async function VariantSectionDynamic({ product, channel, searchParams }: 
 			? ("out-of-stock" as const)
 			: undefined;
 
-	// Format prices
-	const price = selectedVariant?.pricing?.price?.gross
-		? selectedVariant.pricing.price.gross.amount === 0
+	const isMaterial = product.category?.slug === MATERIAL_CATEGORY_SLUG;
+
+	// Format prices — for material products Saleor stores price-per-0.1m unit,
+	// so multiply by METER_MULTIPLIER (10) to display the customer-facing price-per-metre.
+	const priceGross = selectedVariant?.pricing?.price?.gross;
+	const price = priceGross
+		? priceGross.amount === 0
 			? "FREE"
-			: formatMoney(selectedVariant.pricing.price.gross.amount, selectedVariant.pricing.price.gross.currency)
+			: isMaterial
+				? formatMoney(priceGross.amount * METER_MULTIPLIER, priceGross.currency) + " / m"
+				: formatMoney(priceGross.amount, priceGross.currency)
 		: formatMoneyRange({
 				start: product.pricing?.priceRange?.start?.gross,
 				stop: product.pricing?.priceRange?.stop?.gross,
 			}) || "";
 
 	// Calculate discount/sale information
-	const currentPrice = selectedVariant?.pricing?.price?.gross?.amount;
+	const currentPrice = priceGross?.amount;
 	const undiscountedPrice = selectedVariant?.pricing?.priceUndiscounted?.gross?.amount;
 	const { isOnSale, discountPercent } = getDiscountInfo(currentPrice, undiscountedPrice);
 
 	const compareAtPrice =
 		isOnSale && selectedVariant?.pricing?.priceUndiscounted?.gross
-			? formatMoney(
-					selectedVariant.pricing.priceUndiscounted.gross.amount,
-					selectedVariant.pricing.priceUndiscounted.gross.currency,
-				)
+			? isMaterial
+				? formatMoney(
+						selectedVariant.pricing.priceUndiscounted.gross.amount * METER_MULTIPLIER,
+						selectedVariant.pricing.priceUndiscounted.gross.currency,
+					) + " / m"
+				: formatMoney(
+						selectedVariant.pricing.priceUndiscounted.gross.amount,
+						selectedVariant.pricing.priceUndiscounted.gross.currency,
+					)
 			: null;
 
 	// Server action for adding to cart
-	async function addToCart() {
+	async function addToCart(formData: FormData) {
 		"use server";
 
 		if (!selectedVariantID) {
-			// Silently return - button should be disabled if no variant selected
 			return;
 		}
+
+		// For material products (sold by metre): form sends integer units (0.1 m each).
+		// For all others: quantity is always 1.
+		const rawQty = formData.get("quantity");
+		const quantity = isMaterial && rawQty
+			? Math.max(1, parseInt(rawQty as string, 10))
+			: 1;
 
 		try {
 			const checkout = await Checkout.findOrCreate({
@@ -84,7 +105,6 @@ export async function VariantSectionDynamic({ product, channel, searchParams }: 
 			});
 
 			if (!checkout) {
-				// Log error server-side, UI will show via ErrorBoundary if needed
 				console.error("Add to cart: Failed to create checkout");
 				return;
 			}
@@ -95,19 +115,25 @@ export async function VariantSectionDynamic({ product, channel, searchParams }: 
 				variables: {
 					id: checkout.id,
 					productVariantId: decodeURIComponent(selectedVariantID),
+					quantity,
 				},
 				cache: "no-cache",
 			});
 
 			if (!addResult.ok) {
-				console.error("Add to cart failed:", addResult.error.message);
+				console.error("[addToCart] GraphQL/HTTP error:", addResult.error.message);
+				return;
+			}
+
+			// Check Saleor domain errors (stock, availability, etc.)
+			const mutationErrors = addResult.data.checkoutLinesAdd?.errors;
+			if (mutationErrors && mutationErrors.length > 0) {
+				console.error("[addToCart] Saleor mutation errors:", JSON.stringify(mutationErrors));
 				return;
 			}
 
 			revalidatePath("/cart");
 		} catch (error) {
-			// Log error server-side - the UI feedback comes from cart drawer/badge update
-			// For explicit error UI, would need useActionState (separate enhancement)
 			console.error("Add to cart failed:", error);
 		}
 	}
@@ -138,6 +164,9 @@ export async function VariantSectionDynamic({ product, channel, searchParams }: 
 					productSlug={product.slug}
 					channel={channel}
 				/>
+
+				{/* Metre quantity input – only for Materijali category */}
+				{isMaterial && <MaterialQuantityInput />}
 
 				{/* Add to Cart */}
 				<AddToCart

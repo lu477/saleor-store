@@ -2,11 +2,12 @@
 
 import type React from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { Plus } from "lucide-react";
 import { Button } from "@/ui/components/ui/button";
 import { Badge } from "@/ui/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { proxySaleorUrl } from "@/lib/saleor-image";
+import { localeConfig } from "@/config/locale";
 
 export interface ProductCardData {
 	id: string;
@@ -48,10 +49,13 @@ export function ProductCard({ product, priority = false }: ProductCardProps) {
 		product.onQuickAdd?.(product.id);
 	};
 
+	const isMaterial = product.category?.slug === "materijali";
+	const METER_MULTIPLIER = 10;
+
 	const formatPrice = (amount: number, currency: string) => {
-		return new Intl.NumberFormat("en", {
+		return new Intl.NumberFormat(localeConfig.default, {
 			style: "currency",
-			currency: currency,
+			currency: localeConfig.displayCurrency ?? currency,
 		}).format(amount);
 	};
 
@@ -61,26 +65,24 @@ export function ProductCard({ product, priority = false }: ProductCardProps) {
 				{/* Image Container */}
 				<div className="relative mb-4 aspect-[3/4] overflow-hidden rounded-xl bg-secondary">
 					{/* Primary Image */}
-					<Image
-						src={product.image}
+					<img
+						src={proxySaleorUrl(product.image)}
 						alt={product.imageAlt || product.name}
-						fill
-						sizes="(max-width: 1024px) 50vw, 33vw"
 						className={cn(
-							"object-cover transition-all duration-500 ease-out md:group-hover:scale-105",
+							"absolute inset-0 h-full w-full object-cover transition-all duration-500 ease-out md:group-hover:scale-105",
 							product.hoverImage && "md:group-hover:opacity-0",
 						)}
-						priority={priority}
+						loading={priority ? "eager" : "lazy"}
+						fetchPriority={priority ? "high" : "auto"}
 					/>
 
 					{/* Hover Image - desktop only to avoid double-tap on touch */}
 					{product.hoverImage && (
-						<Image
-							src={product.hoverImage}
+						<img
+							src={proxySaleorUrl(product.hoverImage)}
 							alt={`${product.name} - alternate view`}
-							fill
-							sizes="(max-width: 1024px) 50vw, 33vw"
-							className="object-cover opacity-0 transition-all duration-500 ease-out md:group-hover:scale-105 md:group-hover:opacity-100"
+							className="absolute inset-0 h-full w-full object-cover opacity-0 transition-all duration-500 ease-out md:group-hover:scale-105 md:group-hover:opacity-100"
+							loading="lazy"
 						/>
 					)}
 
@@ -131,10 +133,19 @@ export function ProductCard({ product, priority = false }: ProductCardProps) {
 
 					{/* Price */}
 					<div className="flex items-center gap-2 pt-0.5">
-						<span className="font-semibold">{formatPrice(product.price, product.currency)}</span>
+						<span className="font-semibold">
+							{formatPrice(
+								isMaterial ? product.price * METER_MULTIPLIER : product.price,
+								product.currency,
+							)}
+							{isMaterial && <span className="ml-0.5 text-sm font-normal text-muted-foreground"> / m</span>}
+						</span>
 						{product.compareAtPrice && (
 							<span className="text-sm text-muted-foreground line-through">
-								{formatPrice(product.compareAtPrice, product.currency)}
+								{formatPrice(
+									isMaterial ? product.compareAtPrice * METER_MULTIPLIER : product.compareAtPrice,
+									product.currency,
+								)}
 							</span>
 						)}
 					</div>

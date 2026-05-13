@@ -19,7 +19,7 @@ export const getFormattedMoney = <TMoney extends Money>(money: MightNotExist<TMo
 
 	return new Intl.NumberFormat(localeConfig.default, {
 		style: "currency",
-		currency,
+		currency: localeConfig.displayCurrency ?? currency,
 		currencyDisplay: "symbol",
 	}).format(negative ? -amount : amount);
 };
@@ -32,7 +32,7 @@ export const formatShippingPrice = <TMoney extends Money>(money: MightNotExist<T
 		return "—";
 	}
 	if (money.amount === 0) {
-		return "Free";
+		return getFormattedMoney({ ...money, amount: 0 });
 	}
 	return getFormattedMoney(money);
 };

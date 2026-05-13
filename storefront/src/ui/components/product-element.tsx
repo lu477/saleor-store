@@ -1,8 +1,7 @@
 import { LinkWithChannel } from "../atoms/link-with-channel";
-import { ProductImageWrapper } from "@/ui/atoms/product-image-wrapper";
-
 import type { ProductListItemFragment } from "@/gql/graphql";
 import { formatMoneyRange } from "@/lib/utils";
+import { proxySaleorUrl } from "@/lib/saleor-image";
 
 export function ProductElement({
 	product,
@@ -14,15 +13,15 @@ export function ProductElement({
 			<LinkWithChannel href={`/products/${product.slug}`} key={product.id} prefetch={false}>
 				<div>
 					{product?.thumbnail?.url && (
-						<ProductImageWrapper
-							loading={loading}
-							src={product.thumbnail.url}
-							alt={product.thumbnail.alt ?? ""}
-							width={512}
-							height={512}
-							sizes={"512px"}
-							priority={priority}
-						/>
+						<div className="aspect-square overflow-hidden bg-secondary">
+							<img
+								src={proxySaleorUrl(product.thumbnail.url)}
+								alt={product.thumbnail.alt ?? ""}
+								className="h-full w-full object-cover object-center"
+								loading={priority ? "eager" : loading}
+								fetchPriority={priority ? "high" : "auto"}
+							/>
+						</div>
 					)}
 					<div className="mt-2 flex justify-between">
 						<div>

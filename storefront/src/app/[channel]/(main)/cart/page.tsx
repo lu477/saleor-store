@@ -1,7 +1,7 @@
 import { Suspense } from "react";
-import Image from "next/image";
 import { CheckoutLink } from "./checkout-link";
 import { DeleteLineButton } from "./delete-line-button";
+import { proxySaleorUrl } from "@/lib/saleor-image";
 import * as Checkout from "@/lib/checkout";
 import { formatMoney, getHrefForVariant } from "@/lib/utils";
 import { LinkWithChannel } from "@/ui/atoms/link-with-channel";
@@ -58,12 +58,13 @@ async function CartContent({ params: paramsPromise }: { params: Promise<{ channe
 					<li key={item.id} className="flex py-4">
 						<div className="aspect-square h-24 w-24 shrink-0 overflow-hidden rounded-md border bg-neutral-50 sm:h-32 sm:w-32">
 							{item.variant?.product?.thumbnail?.url && (
-								<Image
-									src={item.variant.product.thumbnail.url}
+								<img
+									src={proxySaleorUrl(item.variant.product.thumbnail.url)}
 									alt={item.variant.product.thumbnail.alt ?? ""}
 									width={200}
 									height={200}
 									className="h-full w-full object-contain object-center"
+									loading="lazy"
 								/>
 							)}
 						</div>

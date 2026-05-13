@@ -1,17 +1,27 @@
 "use client";
 
 import { useTransition } from "react";
-import Image from "next/image";
 import Link from "next/link";
-import { Minus, Plus, Trash2, ShoppingBag, ArrowRight, Truck, RotateCcw } from "lucide-react";
+import { Minus, Plus, Trash2, ShoppingBag, ArrowRight, RotateCcw } from "lucide-react";
 import { Button } from "@/ui/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetCloseButton } from "@/ui/components/ui/sheet";
 import { useCart } from "./cart-context";
 import { deleteCartLine, updateCartLineQuantity } from "./actions";
+import { proxySaleorUrl } from "@/lib/saleor-image";
 import { cn } from "@/lib/utils";
 import { formatMoney } from "@/lib/utils";
 import { localeConfig } from "@/config/locale";
 import { hasDiscount } from "@/lib/pricing";
+
+const MATERIAL_CATEGORY_SLUG = "materijali";
+const METER_MULTIPLIER = 10;
+
+function formatLineQuantity(line: CartLine): string {
+	if (line.variant.product.category?.slug === MATERIAL_CATEGORY_SLUG) {
+		return `${(line.quantity / METER_MULTIPLIER).toFixed(1)} m`;
+	}
+	return String(line.quantity);
+}
 
 interface CartLine {
 	id: string;
@@ -32,6 +42,10 @@ interface CartLine {
 			thumbnail?: {
 				url: string;
 				alt?: string | null;
+			} | null;
+			category?: {
+				name: string;
+				slug: string;
 			} | null;
 		};
 		pricing?: {
@@ -133,9 +147,6 @@ export function CartDrawer({ checkoutId, lines, totalPrice, channel }: CartDrawe
 		});
 	};
 
-	const freeShippingThreshold = 100;
-	const progressToFreeShipping = Math.min((subtotal / freeShippingThreshold) * 100, 100);
-	const amountToFreeShipping = Math.max(freeShippingThreshold - subtotal, 0);
 
 	return (
 		<Sheet open={isOpen} onOpenChange={(open) => !open && closeCart()}>
@@ -150,30 +161,6 @@ export function CartDrawer({ checkoutId, lines, totalPrice, channel }: CartDrawe
 					<SheetCloseButton className="static" />
 				</SheetHeader>
 
-				{/* Free Shipping Progress */}
-				{lines.length > 0 && (
-					<div className="bg-secondary/50 border-b border-border px-6 py-4">
-						<div className="mb-2 flex items-center gap-2 text-sm">
-							<Truck className={cn("h-4 w-4", amountToFreeShipping <= 0 && "text-success")} />
-							{amountToFreeShipping > 0 ? (
-								<span>
-									Add <strong>{formatMoney(amountToFreeShipping, currency)}</strong> more for free shipping
-								</span>
-							) : (
-								<span className="font-medium text-success">You qualify for free shipping!</span>
-							)}
-						</div>
-						<div className="h-1.5 overflow-hidden rounded-full bg-border">
-							<div
-								className={cn(
-									"h-full rounded-full transition-all duration-500 ease-out",
-									amountToFreeShipping <= 0 ? "bg-success" : "bg-foreground",
-								)}
-								style={{ width: `${progressToFreeShipping}%` }}
-							/>
-						</div>
-					</div>
-				)}
 
 				{/* Cart Items */}
 				<div className="flex-1 overflow-y-auto">
@@ -213,11 +200,11 @@ export function CartDrawer({ checkoutId, lines, totalPrice, channel }: CartDrawe
 												className="group relative h-24 w-20 shrink-0 overflow-hidden rounded-lg bg-secondary"
 											>
 												{line.variant.product.thumbnail?.url && (
-													<Image
-														src={line.variant.product.thumbnail.url}
+													<img
+														src={proxySaleorUrl(line.variant.product.thumbnail.url)}
 														alt={line.variant.product.thumbnail.alt ?? line.variant.product.name}
-														fill
-														className="object-cover transition-transform duration-300 group-hover:scale-105"
+														className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+														loading="lazy"
 													/>
 												)}
 											</Link>
@@ -279,7 +266,7 @@ export function CartDrawer({ checkoutId, lines, totalPrice, channel }: CartDrawe
 															<Minus className="h-3 w-3" />
 															<span className="sr-only">Decrease quantity</span>
 														</button>
-														<span className="w-8 text-center text-sm font-medium">{line.quantity}</span>
+														<span className="min-w-[2.5rem] text-center text-sm font-medium tabular-nums">{formatLineQuantity(line)}</span>
 														<button
 															type="button"
 															onClick={() => handleUpdateQuantity(line.id, line.quantity + 1)}
@@ -326,7 +313,7 @@ export function CartDrawer({ checkoutId, lines, totalPrice, channel }: CartDrawe
 							</div>
 							<div className="flex items-center justify-between text-sm">
 								<span className="text-muted-foreground">Shipping</span>
-								<span>{subtotal >= freeShippingThreshold ? "Free" : "Calculated at checkout"}</span>
+								<span>Calculated at checkout</span>
 							</div>
 							<div className="flex items-center justify-between border-t border-border pt-2 text-base font-semibold">
 								<span>Total</span>
@@ -355,10 +342,6 @@ export function CartDrawer({ checkoutId, lines, totalPrice, channel }: CartDrawe
 
 						{/* Trust Signals */}
 						<div className="flex items-center justify-center gap-6 border-t border-border px-6 pb-4 pt-4 text-xs text-muted-foreground">
-							<span className="flex items-center gap-1.5">
-								<Truck className="h-4 w-4" />
-								Free delivery over {formatMoney(freeShippingThreshold, currency)}
-							</span>
 							<span className="flex items-center gap-1.5">
 								<RotateCcw className="h-4 w-4" />
 								30-day returns

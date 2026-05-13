@@ -98,6 +98,6 @@ export function transformToProductCard(product: ProductListItemFragment, channel
 export function formatPrice(amount: number, currency: string): string {
 	return new Intl.NumberFormat(localeConfig.default, {
 		style: "currency",
-		currency: currency,
+		currency: localeConfig.displayCurrency ?? currency,
 	}).format(amount);
 }

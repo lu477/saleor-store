@@ -1,5 +1,5 @@
-import Image from "next/image";
 import { type UserDetailsFragment } from "@/gql/graphql";
+import { proxySaleorUrl } from "@/lib/saleor-image";
 
 type Props = {
 	user: UserDetailsFragment;
@@ -13,10 +13,10 @@ export const UserAvatar = ({ user }: Props) => {
 
 	if (user.avatar) {
 		return (
-			<Image
+			<img
 				className="h-8 w-8 rounded-full border"
 				aria-hidden="true"
-				src={user.avatar.url}
+				src={proxySaleorUrl(user.avatar.url)}
 				width={24}
 				height={24}
 				alt=""

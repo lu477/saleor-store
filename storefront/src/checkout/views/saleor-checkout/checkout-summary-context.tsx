@@ -70,24 +70,23 @@ export function formatShippingMethod(checkout: CheckoutFragment): string {
 /** Build standard summary rows for shipping step */
 export function buildShippingSummaryRows(checkout: CheckoutFragment): SummaryRow[] {
 	return [
-		{ label: "Contact", value: checkout.email || "", onChangeStep: 1 },
-		{ label: "Ship to", value: formatAddressLine(checkout.shippingAddress), onChangeStep: 1 },
+		{ label: "Kontakt", value: checkout.email || "", onChangeStep: 1 },
+		{ label: "Adresa", value: formatAddressLine(checkout.shippingAddress), onChangeStep: 1 },
 	];
 }
 
 /** Build standard summary rows for payment step */
 export function buildPaymentSummaryRows(checkout: CheckoutFragment): SummaryRow[] {
-	const rows: SummaryRow[] = [{ label: "Contact", value: checkout.email || "", onChangeStep: 1 }];
+	const rows: SummaryRow[] = [{ label: "Kontakt", value: checkout.email || "", onChangeStep: 1 }];
 
 	// Only show shipping info for physical products
 	if (checkout.isShippingRequired) {
 		rows.push(
-			{ label: "Ship to", value: formatAddressLine(checkout.shippingAddress), onChangeStep: 1 },
-			{ label: "Method", value: formatShippingMethod(checkout), onChangeStep: 2 },
+			{ label: "Adresa", value: formatAddressLine(checkout.shippingAddress), onChangeStep: 1 },
+			{ label: "Dostava", value: formatShippingMethod(checkout), onChangeStep: 2 },
 		);
 	} else {
-		// Digital products - show delivery type instead
-		rows.push({ label: "Delivery", value: "Digital" });
+		rows.push({ label: "Isporuka", value: "Digitalno" });
 	}
 
 	return rows;

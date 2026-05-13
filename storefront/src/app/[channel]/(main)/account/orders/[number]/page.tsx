@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
-import Image from "next/image";
 import { MapPin, CreditCard } from "lucide-react";
+import { proxySaleorUrl } from "@/lib/saleor-image";
 import { OrderByNumberDocument } from "@/gql/graphql";
 import { executeAuthenticatedGraphQL } from "@/lib/graphql";
 import { LinkWithChannel } from "@/ui/atoms/link-with-channel";
@@ -68,12 +68,13 @@ export default async function OrderDetailPage({ params }: Props) {
 									<div key={line.id} className="flex items-center gap-4 px-5 py-4">
 										{product.thumbnail && (
 											<div className="bg-secondary/30 h-16 w-16 shrink-0 overflow-hidden rounded-lg border">
-												<Image
-													src={product.thumbnail.url}
+												<img
+													src={proxySaleorUrl(product.thumbnail.url)}
 													alt={product.thumbnail.alt ?? ""}
 													width={128}
 													height={128}
 													className="h-full w-full object-contain"
+													loading="lazy"
 												/>
 											</div>
 										)}

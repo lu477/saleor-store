@@ -22,6 +22,7 @@ query CheckoutFind($id: ID!) {
 					}
 					category {
 						name
+						slug
 					}
 				}
 				pricing {

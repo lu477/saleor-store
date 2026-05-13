@@ -188,13 +188,13 @@ export async function Footer({ channel }: { channel: string }) {
 								<ul className="space-y-3">
 									{defaultFooterLinks.info.map((link) => (
 										<li key={link.href}>
-											<Link
+											<LinkWithChannel
 												href={link.href}
 												prefetch={false}
 												className="text-sm text-[#c4a898] transition-colors hover:text-[#f5efe6]"
 											>
 												{link.label}
-											</Link>
+											</LinkWithChannel>
 										</li>
 									))}
 								</ul>

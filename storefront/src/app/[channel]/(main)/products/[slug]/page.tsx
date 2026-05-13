@@ -6,6 +6,7 @@ import edjsHTML from "editorjs-html";
 import xss from "xss";
 
 import { executePublicGraphQL } from "@/lib/graphql";
+import { proxySaleorUrl } from "@/lib/saleor-image";
 import { ProductDetailsDocument, type ProductDetailsQuery } from "@/gql/graphql";
 import { buildPageMetadata, buildProductJsonLd } from "@/lib/seo";
 import { CACHE_PROFILES, applyCacheProfile } from "@/lib/cache-manifest";
@@ -121,7 +122,10 @@ async function ProductContent({
 	const selectedVariant = variants.find((v) => v.id === selectedVariantId);
 
 	const descriptionHtml = parseDescription(product.description);
-	const images = getGalleryImages(product, selectedVariant);
+	const images = getGalleryImages(product, selectedVariant).map((img) => ({
+		...img,
+		url: proxySaleorUrl(img.url),
+	}));
 	const productAttributes = extractProductAttributes(product);
 	const careInstructions = extractCareInstructions(product);
 
@@ -155,7 +159,7 @@ async function ProductContent({
 
 	return (
 		<div className="flex min-h-screen flex-col bg-background">
-			{lcpImageUrl && <link rel="preload" as="image" href={lcpImageUrl} fetchPriority="high" />}
+			{lcpImageUrl && <link rel="preload" as="image" href={lcpImageUrl} />}
 
 			{productJsonLd && (
 				<script
@@ -233,14 +237,19 @@ function ProductPageSkeleton() {
 // Helper Functions
 // ============================================================================
 
+function convertNewlines(html: string): string {
+	return html.replace(/\\n/g, "<br>").replace(/\n/g, "<br>");
+}
+
 function parseDescription(description: string | null | undefined): string[] | null {
 	if (!description) return null;
 
 	try {
 		const parsed = parser.parse(JSON.parse(description));
-		return parsed.map((html: string) => xss(html));
+		return parsed.map((html: string) => xss(convertNewlines(html)));
 	} catch {
-		return [xss(`<p>${description}</p>`)];
+		// Plain text fallback (e.g. WooCommerce imports) — convert newlines to <br>
+		return [xss(`<p>${convertNewlines(description)}</p>`)];
 	}
 }
 

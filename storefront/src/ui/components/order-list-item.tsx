@@ -1,5 +1,5 @@
-import Image from "next/image";
 import { LinkWithChannel } from "../atoms/link-with-channel";
+import { proxySaleorUrl } from "@/lib/saleor-image";
 import { formatDate, formatMoney, getHrefForVariant } from "@/lib/utils";
 import { type OrderDetailsFragment } from "@/gql/graphql";
 import { PaymentStatus } from "@/ui/components/payment-status";
@@ -65,12 +65,13 @@ export const OrderListItem = ({ order }: Props) => {
 												<div className="flex flex-row items-center">
 													{product.thumbnail && (
 														<div className="mr-3 aspect-square h-16 w-16 shrink-0 overflow-hidden rounded-md border bg-neutral-50 md:mr-6 md:h-24 md:w-24">
-															<Image
-																src={product.thumbnail.url}
+															<img
+																src={proxySaleorUrl(product.thumbnail.url)}
 																alt={product.thumbnail.alt ?? ""}
 																width={200}
 																height={200}
 																className="h-full w-full object-contain object-center"
+																loading="lazy"
 															/>
 														</div>
 													)}

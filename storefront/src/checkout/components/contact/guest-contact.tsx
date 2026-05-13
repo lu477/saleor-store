@@ -59,15 +59,15 @@ export const GuestContact: FC<GuestContactProps> = ({
 	return (
 		<section className="space-y-4">
 			<div className="flex items-center justify-between">
-				<h2 className="text-xl font-semibold">Contact</h2>
+				<h2 className="text-xl font-semibold">Kontakt</h2>
 				<p className="text-sm text-muted-foreground">
-					Have an account?{" "}
+					Imate nalog?{" "}
 					<button
 						type="button"
 						onClick={onSignInClick}
 						className="font-medium text-foreground underline underline-offset-2 hover:no-underline"
 					>
-						Log in
+						Prijavite se
 					</button>
 				</p>
 			</div>
@@ -77,7 +77,7 @@ export const GuestContact: FC<GuestContactProps> = ({
 					<Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
 					<Input
 						type="email"
-						placeholder="Email address"
+						placeholder="Email adresa"
 						value={email}
 						onChange={(e) => onEmailChange(e.target.value)}
 						onBlur={onEmailBlur}
@@ -101,7 +101,7 @@ export const GuestContact: FC<GuestContactProps> = ({
 					onCheckedChange={(checked) => onCreateAccountChange(checked === true)}
 				/>
 				<Label htmlFor="createAccount" className="cursor-pointer text-sm text-muted-foreground">
-					Create an account for faster checkout next time
+					Kreiraj nalog za brže kupovine ubuduće
 				</Label>
 			</div>
 
@@ -112,7 +112,7 @@ export const GuestContact: FC<GuestContactProps> = ({
 							<Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
 							<Input
 								type={showPassword ? "text" : "password"}
-								placeholder="Password (minimum 8 characters)"
+								placeholder="Lozinka (minimum 8 karaktera)"
 								value={password}
 								onChange={(e) => onPasswordChange(e.target.value)}
 								autoComplete="new-password"
@@ -132,7 +132,7 @@ export const GuestContact: FC<GuestContactProps> = ({
 					<div className="bg-muted/50 flex items-start gap-2 rounded-md p-3 text-sm text-muted-foreground">
 						<Info className="mt-0.5 h-4 w-4 shrink-0" />
 						<p>
-							After checkout, you&apos;ll receive an email to activate your account before you can sign in.
+							Nakon kupovine, dobićete email za aktivaciju naloga pre nego što se možete prijaviti.
 						</p>
 					</div>
 				</div>

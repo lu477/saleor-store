@@ -1,6 +1,6 @@
 import Link from "next/link";
-import Image from "next/image";
 import type { SearchProduct } from "@/lib/search";
+import { proxySaleorUrl } from "@/lib/saleor-image";
 import { localeConfig } from "@/config/locale";
 
 interface SearchResultsProps {
@@ -39,7 +39,7 @@ function SearchResultCard({
 }) {
 	const formattedPrice = new Intl.NumberFormat(localeConfig.default, {
 		style: "currency",
-		currency: product.currency,
+		currency: localeConfig.displayCurrency ?? product.currency,
 	}).format(product.price);
 
 	return (
@@ -50,13 +50,11 @@ function SearchResultCard({
 			{/* Image */}
 			<div className="relative aspect-square overflow-hidden bg-muted">
 				{product.thumbnailUrl ? (
-					<Image
-						src={product.thumbnailUrl}
+					<img
+						src={proxySaleorUrl(product.thumbnailUrl)}
 						alt={product.thumbnailAlt || product.name}
-						fill
-						sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-						className="object-cover transition-transform duration-300 group-hover:scale-105"
-						priority={priority}
+						className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+						loading={priority ? "eager" : "lazy"}
 					/>
 				) : (
 					<div className="flex h-full items-center justify-center text-muted-foreground">No image</div>

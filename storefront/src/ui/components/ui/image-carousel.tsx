@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import Image from "next/image";
 import { cn } from "@/lib/utils";
 import {
 	Carousel,
@@ -120,13 +119,12 @@ export function ImageCarousel({
 									className={cn("relative aspect-[4/5] w-full", onImageClick && "cursor-pointer")}
 									onClick={() => onImageClick?.(index)}
 								>
-									<Image
+									<img
 										src={image.url}
 										alt={image.alt || `${productName} - View ${index + 1}`}
-										fill
-										className="object-cover"
-										sizes="(max-width: 768px) 100vw, 50vw"
-										priority={index === 0}
+										className="absolute inset-0 h-full w-full object-cover"
+										loading={index === 0 ? "eager" : "lazy"}
+										fetchPriority={index === 0 ? "high" : "auto"}
 									/>
 								</div>
 							</CarouselItem>
@@ -173,12 +171,11 @@ export function ImageCarousel({
 									: "opacity-60 hover:opacity-100",
 							)}
 						>
-							<Image
+							<img
 								src={image.url}
 								alt={`${productName} - Thumbnail ${index + 1}`}
-								fill
-								className="object-cover"
-								sizes="80px"
+								className="absolute inset-0 h-full w-full object-cover"
+								loading="lazy"
 							/>
 						</button>
 					))}

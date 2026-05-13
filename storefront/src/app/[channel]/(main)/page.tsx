@@ -3,6 +3,7 @@ import { ProductListByCollectionDocument, ProductOrderField, OrderDirection } fr
 import { executePublicGraphQL } from "@/lib/graphql";
 import { CACHE_PROFILES, applyCacheProfile } from "@/lib/cache-manifest";
 import { LinkWithChannel } from "@/ui/atoms/link-with-channel";
+import { formatPrice } from "@/config/locale";
 
 export const metadata = {
 	title: "Mac Macrame – Svaki čvor priča priču",
@@ -35,23 +36,29 @@ export default function Page(props: { params: Promise<{ channel: string }> }) {
 
 			{/* Hero Section */}
 			<section className="relative flex min-h-[70vh] items-center justify-center bg-[#f5efe6] px-4 text-center">
-				<div className="max-w-2xl">
-					<h1 className="mb-4 font-serif text-5xl font-normal text-[#3d2b1f] md:text-6xl">
+				<img
+					src="/images/hero.jpg"
+					alt="Mac Macrame hero"
+					className="absolute inset-0 h-full w-full object-cover"
+				/>
+				<div className="absolute inset-0 bg-black/30" />
+				<div className="relative max-w-2xl">
+					<h1 className="mb-4 font-serif text-5xl font-normal text-white md:text-6xl">
 						Svaki čvor priča priču
 					</h1>
-					<p className="mb-8 text-lg text-[#7a5c4a]">
+					<p className="mb-8 text-lg text-white/80">
 						Macramé dekoracije i odeća rađene s ljubavlju i po tvojoj meri!
 					</p>
 					<div className="flex flex-wrap justify-center gap-4">
 						<LinkWithChannel
 							href="/products"
-							className="rounded-none border border-[#5c3d2e] bg-[#5c3d2e] px-8 py-3 text-sm uppercase tracking-widest text-white transition-colors hover:bg-[#3d2b1f]"
+							className="rounded-none border border-white bg-white px-8 py-3 text-sm uppercase tracking-widest text-[#3d2b1f] transition-colors hover:bg-transparent hover:text-white"
 						>
 							Poseti prodavnicu
 						</LinkWithChannel>
 						<LinkWithChannel
 							href="/pages/kontakt"
-							className="rounded-none border border-[#5c3d2e] px-8 py-3 text-sm uppercase tracking-widest text-[#5c3d2e] transition-colors hover:bg-[#5c3d2e] hover:text-white"
+							className="rounded-none border border-white px-8 py-3 text-sm uppercase tracking-widest text-white transition-colors hover:bg-white hover:text-[#3d2b1f]"
 						>
 							Kontaktiraj nas
 						</LinkWithChannel>
@@ -63,16 +70,21 @@ export default function Page(props: { params: Promise<{ channel: string }> }) {
 			<section className="mx-auto max-w-7xl px-4 py-16">
 				<div className="grid grid-cols-2 gap-4 md:grid-cols-4">
 					{[
-						{ name: "Zavese i dekoracija", slug: "zavese-i-dekoracija" },
-						{ name: "Držači za saksije", slug: "drzaci-za-saksije" },
-						{ name: "Nameštaj i lampe", slug: "namestaj-i-lampe" },
-						{ name: "Odeća i aksesoari", slug: "odeca-i-aksesoari" },
+						{ name: "Zavese i dekoracija", slug: "zavese-i-dekoracija", image: "/images/cat-zavese.webp" },
+						{ name: "Držači za saksije", slug: "drzaci-za-saksije", image: "/images/cat-drzaci.webp" },
+						{ name: "Nameštaj i lampe", slug: "namestaj-i-lampe", image: "/images/cat-namestaj.webp" },
+						{ name: "Odeća i aksesoari", slug: "odeca-i-aksesoari", image: "/images/cat-odeca.webp" },
 					].map((cat) => (
 						<LinkWithChannel
 							key={cat.slug}
 							href={`/categories/${cat.slug}`}
 							className="group relative block aspect-square overflow-hidden bg-[#ede8e0]"
 						>
+							<img
+								src={cat.image}
+								alt={cat.name}
+								className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+							/>
 							<div className="absolute inset-0 flex items-end bg-gradient-to-t from-black/40 to-transparent p-4">
 								<h3 className="font-serif text-lg text-white">{cat.name}</h3>
 							</div>
@@ -220,7 +232,7 @@ async function FeaturedProducts({ params: paramsPromise }: { params: Promise<{ c
 						<div className="aspect-square overflow-hidden bg-[#ede8e0]">
 							{product.thumbnail && (
 								<img
-									src={product.thumbnail.url}
+									src={`/api/media?url=${encodeURIComponent(product.thumbnail.url)}`}
 									alt={product.thumbnail.alt || product.name}
 									className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
 								/>
@@ -229,8 +241,12 @@ async function FeaturedProducts({ params: paramsPromise }: { params: Promise<{ c
 						<div className="mt-3">
 							<h3 className="font-serif text-[#3d2b1f]">{product.name}</h3>
 							<p className="mt-1 text-sm text-[#7a5c4a]">
-								{product.pricing?.priceRange?.start?.gross?.amount}{" "}
-								{product.pricing?.priceRange?.start?.gross?.currency}
+								{product.pricing?.priceRange?.start?.gross
+									? formatPrice(
+											product.pricing.priceRange.start.gross.amount,
+											product.pricing.priceRange.start.gross.currency,
+										)
+									: ""}
 							</p>
 						</div>
 					</LinkWithChannel>

@@ -12,19 +12,27 @@ const config = {
 		// Note: API rate limiting is handled by RequestQueue in src/lib/graphql.ts
 		// (max 3 concurrent requests + 200ms delay between requests)
 	},
+	allowedDevOrigins: ["*.ngrok-free.dev", "*.ngrok.io", "*.ngrok.app", "192.168.0.*"],
 	images: {
+		localPatterns: [
+			{
+				pathname: "/api/media",
+				search: "?url=**",
+			},
+		],
 		remotePatterns: [
 			{
-				// Saleor Cloud CDN
+				protocol: "https",
 				hostname: "*.saleor.cloud",
 			},
 			{
-				// Saleor Media (common pattern)
+				protocol: "https",
 				hostname: "*.media.saleor.cloud",
 			},
 			{
-				// Allow all hostnames in development (restrict in production)
-				hostname: "*",
+				protocol: "http",
+				hostname: "192.168.0.100",
+				port: "8000",
 			},
 		],
 	},

@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, type FC } from "react";
-import Image from "next/image";
 import { Tag, ShieldCheck, RotateCcw, Truck, ChevronDown, ShoppingBag } from "lucide-react";
+import { proxySaleorUrl } from "@/lib/saleor-image";
 import { Button } from "@/ui/components/ui/button";
 import { Input } from "@/ui/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -133,7 +133,7 @@ export const OrderSummary: FC<OrderSummaryProps> = ({ checkout, order, editable 
 	const formatMoney = (amount: number) => {
 		return new Intl.NumberFormat(localeConfig.default, {
 			style: "currency",
-			currency,
+			currency: localeConfig.displayCurrency ?? currency,
 		}).format(amount);
 	};
 
@@ -171,12 +171,13 @@ export const OrderSummary: FC<OrderSummaryProps> = ({ checkout, order, editable 
 									)}
 								>
 									{line.imageUrl ? (
-										<Image
-											src={line.imageUrl}
+										<img
+											src={proxySaleorUrl(line.imageUrl)}
 											alt={line.imageAlt || line.name}
 											width={32}
 											height={32}
 											className="h-full w-full object-cover"
+											loading="lazy"
 										/>
 									) : (
 										<div className="flex h-full w-full items-center justify-center bg-muted text-muted-foreground">
@@ -238,12 +239,13 @@ export const OrderSummary: FC<OrderSummaryProps> = ({ checkout, order, editable 
 										</span>
 										<div className="h-14 w-14 overflow-hidden rounded-lg border border-border bg-secondary">
 											{line.imageUrl ? (
-												<Image
-													src={line.imageUrl}
+												<img
+													src={proxySaleorUrl(line.imageUrl)}
 													alt={line.imageAlt || line.name}
 													width={56}
 													height={56}
 													className="h-full w-full object-contain object-center"
+													loading="lazy"
 												/>
 											) : (
 												<div className="flex h-full w-full items-center justify-center text-muted-foreground">
@@ -314,24 +316,22 @@ export const OrderSummary: FC<OrderSummaryProps> = ({ checkout, order, editable 
 					<section className="border-t border-border px-5 py-4">
 						<dl className="space-y-2 text-sm tabular-nums">
 							<div className="flex justify-between">
-								<dt className="text-muted-foreground">Subtotal</dt>
+								<dt className="text-muted-foreground">Međuzbir</dt>
 								<dd>{formatMoney(subtotal)}</dd>
 							</div>
 							<div className="flex justify-between">
-								<dt className="text-muted-foreground">Shipping</dt>
-								<dd className={cn(shipping === 0 && "text-green-600")}>
-									{shipping === 0 ? "Free" : formatMoney(shipping)}
-								</dd>
+								<dt className="text-muted-foreground">Dostava</dt>
+								<dd>{shipping === 0 ? "—" : formatMoney(shipping)}</dd>
 							</div>
 							{tax > 0 && (
 								<div className="flex justify-between">
-									<dt className="text-muted-foreground">Tax (VAT)</dt>
+									<dt className="text-muted-foreground">Porez (PDV)</dt>
 									<dd>{formatMoney(tax)}</dd>
 								</div>
 							)}
 							{discount > 0 && (
 								<div className="flex justify-between text-green-600">
-									<dt>Discount</dt>
+									<dt>Popust</dt>
 									<dd>-{formatMoney(discount)}</dd>
 								</div>
 							)}
@@ -340,8 +340,8 @@ export const OrderSummary: FC<OrderSummaryProps> = ({ checkout, order, editable 
 						{/* Total */}
 						<div className="border-border/50 mt-4 flex items-baseline justify-between border-t pt-4">
 							<div className="flex flex-col">
-								<span className="text-base font-semibold">Total</span>
-								{tax > 0 && <span className="text-xs text-muted-foreground">Including VAT</span>}
+								<span className="text-base font-semibold">Ukupno</span>
+								{tax > 0 && <span className="text-xs text-muted-foreground">Uključuje PDV</span>}
 							</div>
 							<data value={total} className="text-xl font-semibold tabular-nums">
 								{formatMoney(total)}
@@ -354,25 +354,25 @@ export const OrderSummary: FC<OrderSummaryProps> = ({ checkout, order, editable 
 						<div className="flex flex-col items-center rounded-lg bg-secondary p-2.5 text-center">
 							<ShieldCheck className="mb-1 h-4 w-4 text-muted-foreground" />
 							<span className="text-[10px] leading-tight text-muted-foreground">
-								Secure
+								Sigurna
 								<br />
-								checkout
+								kupovina
 							</span>
 						</div>
 						<div className="flex flex-col items-center rounded-lg bg-secondary p-2.5 text-center">
 							<RotateCcw className="mb-1 h-4 w-4 text-muted-foreground" />
 							<span className="text-[10px] leading-tight text-muted-foreground">
-								30-day
+								Povrat
 								<br />
-								returns
+								30 dana
 							</span>
 						</div>
 						<div className="flex flex-col items-center rounded-lg bg-secondary p-2.5 text-center">
 							<Truck className="mb-1 h-4 w-4 text-muted-foreground" />
 							<span className="text-[10px] leading-tight text-muted-foreground">
-								Free
+								Brza
 								<br />
-								shipping
+								dostava
 							</span>
 						</div>
 					</footer>

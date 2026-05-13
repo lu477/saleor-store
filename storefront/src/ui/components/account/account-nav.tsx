@@ -1,8 +1,8 @@
 "use client";
 
 import { usePathname, useParams } from "next/navigation";
-import Image from "next/image";
 import { LayoutGrid, Receipt, MapPin, Settings, ArrowLeft } from "lucide-react";
+import { proxySaleorUrl } from "@/lib/saleor-image";
 import { LinkWithChannel } from "@/ui/atoms/link-with-channel";
 import { cn } from "@/lib/utils";
 import { logout } from "@/app/actions";
@@ -51,8 +51,8 @@ export function AccountNav() {
 
 			<div className="mb-8 hidden md:block">
 				{user.avatar ? (
-					<Image
-						src={user.avatar.url}
+					<img
+						src={proxySaleorUrl(user.avatar.url)}
 						alt={user.avatar.alt ?? ""}
 						width={44}
 						height={44}
